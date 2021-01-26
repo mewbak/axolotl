@@ -1,4 +1,4 @@
-0.9.5 (Jan 15 2021)
+0.9.5 (Jan 23 2021)
 ------------------------------------
 * Support for empty prekeys - solves message sending errors (nanu-c)
 * Support for uuids (nanu-c)
