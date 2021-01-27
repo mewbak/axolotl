@@ -269,12 +269,24 @@ func (s *Sessions) Get(id int64) (*Session, error) {
 // GetByE164 returns the session by the telephone number and creates it if it doesn't exists
 func (s *Sessions) GetByE164(tel string) *Session {
 	for _, ses := range s.Sess {
+
 		if ses.Tel == tel {
 			return ses
 		}
 	}
 	newSession := s.CreateSessionForE164(tel, "0")
 	return newSession
+}
+
+func (s *Sessions) GetAllSessionsByE164(tel string) []*Session {
+	var sessions = []*Session{}
+	for _, ses := range s.Sess {
+		if ses.Tel == tel {
+			sessions = append(sessions, ses)
+		}
+	}
+	log.Debugln("d", tel)
+	return sessions
 }
 
 // CreateSessionForE164 creates a new Session for the phone number
@@ -329,7 +341,7 @@ func (s *Sessions) CreateSessionForGroup(group *textsecure.Group) *Session {
 // GetByUUID returns the session by the ChatUUID
 func (s *Sessions) GetByUUID(UUID string) (*Session, error) {
 	if len(UUID) == 0 {
-		return nil, fmt.Errorf("Empty session id", UUID)
+		return nil, fmt.Errorf("Empty session id %s", UUID)
 	}
 
 	for _, ses := range s.Sess {

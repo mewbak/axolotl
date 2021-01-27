@@ -117,7 +117,34 @@ func buildAndSaveMessage(msg *textsecure.Message, syncMessage bool) {
 		msgFlags = helpers.MsgFlagReaction
 		text = msg.Reaction().GetEmoji()
 	}
-	session, err := store.SessionsModel.GetByUUID(msgSource)
+	var session *store.Session
+	if gr != nil {
+		session, err = store.SessionsModel.GetByUUID(msgSource)
+		if err != nil {
+			log.Println("[axolotl] MessageHandler error finding group session by uuid", err)
+			session = store.SessionsModel.GetByE164(msgSource)
+			if session != nil {
+				log.Println("[axolotl] MessageHandler update group session uuid")
+				session.UUID = session.Tel
+				store.UpdateSession(session)
+				err = nil
+			}
+		} else {
+			// deduplicate sessions fix bug in 1.9.4 could be deleted later
+			sessions := store.SessionsModel.GetAllSessionsByE164(msgSource)
+			if len(sessions) > 1 {
+				if len(sessions[0].UUID) < 32 {
+					store.MigrateMessagesFromSessionToAnotherSession(sessions[0].ID, sessions[1].ID)
+				} else {
+					store.MigrateMessagesFromSessionToAnotherSession(sessions[1].ID, sessions[0].ID)
+				}
+				session, err = store.SessionsModel.GetByUUID(msgSource)
+				webserver.UpdateChatList()
+			}
+		}
+	} else {
+		session, err = store.SessionsModel.GetByUUID(msgSource)
+	}
 	if err != nil && gr == nil {
 		// Session could not be found, lets try to find it by E164 aka phone number
 		log.Println("[axolotl] MessageHandler ", err)

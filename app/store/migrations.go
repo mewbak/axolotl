@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -149,4 +151,20 @@ func UpdateSessionTable_v_0_9_5() error {
 	}
 
 	return err
+}
+
+// add support uuids
+func MigrateMessagesFromSessionToAnotherSession(oldSession int64, newSession int64) error {
+	log.Infof("[axolotl] migrate messages")
+
+	query := fmt.Sprintf("UPDATE messages SET sid=%d WHERE sid = %d;", newSession, oldSession)
+	_, err := DS.Dbx.Exec(query)
+	if err != nil {
+		return err
+	}
+	DeleteSession(oldSession)
+	if err != nil {
+		return err
+	}
+	return nil
 }
