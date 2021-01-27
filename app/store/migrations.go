@@ -155,10 +155,14 @@ func UpdateSessionTable_v_0_9_5() error {
 
 // add support uuids
 func MigrateMessagesFromSessionToAnotherSession(oldSession int64, newSession int64) error {
-	log.Infof("[axolotl] migrate messages")
+	session, err := SessionsModel.Get(newSession)
+	if err != nil {
+		return err
+	}
+	log.Infoln("[axolotl] migrate messages", newSession, session.Tel)
 
-	query := fmt.Sprintf("UPDATE messages SET sid=%d WHERE sid = %d;", newSession, oldSession)
-	_, err := DS.Dbx.Exec(query)
+	query := fmt.Sprintf("UPDATE messages SET sid=%d WHERE tel = %s;", newSession, session.Tel)
+	_, err = DS.Dbx.Exec(query)
 	if err != nil {
 		return err
 	}

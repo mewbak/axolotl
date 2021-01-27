@@ -91,8 +91,8 @@ func DeleteSession(ID int64) error {
 	if err != nil {
 		return err
 	}
-	SessionsModel.Sess = append(SessionsModel.Sess[:ID], SessionsModel.Sess[ID+1:]...)
-	SessionsModel.Len--
+
+	LoadChats()
 	return nil
 }
 
@@ -133,7 +133,7 @@ func (s *Sessions) GetMessageList(ID int64) (error, *MessageList) {
 			}
 		}
 		if err != nil {
-			fmt.Println(err)
+			log.Errorln("[axolotl] GetMessageList ", err)
 			return err, nil
 		}
 		return nil, messageList
@@ -146,7 +146,7 @@ func (s *Sessions) GetMoreMessageList(ID int64, lastID string) (error, *MessageL
 	if ID != -1 {
 		sess, err := s.Get(ID)
 		if err != nil {
-			log.Errorln("[axolotl] get messagelist", err)
+			log.Errorln("[axolotl] GetMoreMessageList", err)
 			return err, nil
 		}
 		messageList := &MessageList{
@@ -155,7 +155,7 @@ func (s *Sessions) GetMoreMessageList(ID int64, lastID string) (error, *MessageL
 		}
 		err = DS.Dbx.Select(&messageList.Messages, messagesSelectWhereMore, messageList.Session.ID, lastID)
 		if err != nil {
-			fmt.Println(err)
+			log.Errorln("[axolotl] GetMoreMessageList", err)
 			return err, nil
 		}
 		// attach the quoted messages
@@ -191,7 +191,7 @@ func (s *Session) Add(text string, source string, file []Attachment, mimetype st
 	}
 	fJSON, err := json.Marshal(files)
 	if err != nil {
-		log.Errorln(err)
+		log.Errorln("[axolotl] chatlist add", err)
 	}
 	message := &Message{Message: text,
 		SID:        s.ID,
@@ -235,7 +235,7 @@ func (s *Session) ToggleSessionNotifcation() {
 
 	}
 	//qml.Changed(s, &s.Notification)
-	log.Debugln("[axolotl] ", txt)
+	log.Debugln("[axolotl] ToggleSessionNotifcation ", txt)
 	UpdateSession(s)
 }
 
@@ -285,7 +285,6 @@ func (s *Sessions) GetAllSessionsByE164(tel string) []*Session {
 			sessions = append(sessions, ses)
 		}
 	}
-	log.Debugln("d", tel)
 	return sessions
 }
 
@@ -332,7 +331,7 @@ func (s *Sessions) CreateSessionForGroup(group *textsecure.Group) *Session {
 	s.Len++
 	ses, err := SaveSession(ses)
 	if err != nil {
-		log.Errorln("CreateSessionForGroup failed:", err)
+		log.Errorln("[axolotl] CreateSessionForGroup failed:", err)
 		return nil
 	}
 	return ses
@@ -346,7 +345,7 @@ func (s *Sessions) GetByUUID(UUID string) (*Session, error) {
 
 	for _, ses := range s.Sess {
 		if ses.UUID == UUID {
-			log.Debugln("Session with uuid found", UUID)
+			log.Debugln("[axolotl] Session with uuid found", UUID)
 
 			return ses, nil
 		}
