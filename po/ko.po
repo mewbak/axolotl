@@ -194,6 +194,13 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+#: src/components/StartChatModal.vue:11
+msgid ""
+"New conversations are temporarily disabled. You can create a new chat from "
+"the linked Desktop Client. Alternatively, your counterparty could start the "
+"discussion."
+msgstr ""
+
 #: src/components/Header.vue:99 src/components/Header.vue:149
 msgid "New group"
 msgstr "새 그룹"
@@ -250,10 +257,6 @@ msgstr ""
 
 #: src/components/AttachmentBar.vue:11
 msgid "Photo"
-msgstr ""
-
-#: src/components/StartChatModal.vue:11
-msgid "Please ask your conversation partner to start the chat first."
 msgstr ""
 
 #: src/pages/Settings.vue:5
