@@ -413,7 +413,7 @@ func (s *Session) moveToTop() {
 	topSession = s.ID
 }
 func LoadChats() error {
-	log.Printf("[axolotl] Loading Chats", SessionsModel.Len)
+	log.Println("[axolotl] Loading Chats", SessionsModel.Len)
 	err := DS.Dbx.Select(&AllGroups, groupsSelect)
 	if err != nil {
 		return err
@@ -434,7 +434,7 @@ func LoadChats() error {
 		Sess: make([]*Session, 0),
 	}
 	SessionsModel = NewSessionsModel
-	log.Printf("[axolotl] Loading Chats", SessionsModel.Len)
+	log.Println("[axolotl] Loading Chats", SessionsModel.Len)
 
 	for _, s := range AllSessions {
 		s.When = helpers.HumanizeTimestamp(s.Timestamp)
