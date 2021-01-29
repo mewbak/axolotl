@@ -142,6 +142,7 @@ func requestEnterChat(chat int64) {
 		log.Errorln("[axolotl] requestEnterChat", err)
 		return
 	}
+	activeChat = chat
 	broadcast <- *message
 }
 
